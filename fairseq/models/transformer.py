@@ -470,6 +470,10 @@ class TransformerEncoder(FairseqEncoder):
             if return_all_hiddens:
                 encoder_states[-1] = x
 
+        # saving the output to a file
+        if self._encoder_states_dir:
+            self._save_encoder_state(x, "batch-%s.pt")
+
         return EncoderOut(
             encoder_out=x,  # T x B x C
             encoder_padding_mask=encoder_padding_mask,  # B x T
@@ -971,6 +975,20 @@ def transformer_vaswani_wmt_en_de_big(args):
     args.dropout = getattr(args, "dropout", 0.3)
     base_architecture(args)
 
+# small test parameters for gtx 1060
+@register_model_architecture("transformer", "transformer_small_test_wmt_en_de")
+def transformer_small_test_wmt_en_de(args):
+    args.encoder_embed_dim = getattr(args, "encoder_embed_dim", 128)
+    args.encoder_ffn_embed_dim = getattr(args, "encoder_ffn_embed_dim", 512)
+    args.encoder_attention_heads = getattr(args, "encoder_attention_heads", 4)
+    args.encoder_layers = getattr(args, "encoder_layers", 6)
+    args.encoder_normalize_before = getattr(args, "encoder_normalize_before", False)
+    args.decoder_embed_dim = getattr(args, "decoder_embed_dim", 128)
+    args.decoder_ffn_embed_dim = getattr(args, "decoder_ffn_embed_dim", 512)
+    args.decoder_attention_heads = getattr(args, "decoder_attention_heads", 4)
+    args.decoder_layers = getattr(args, "decoder_layers", 6)
+    args.dropout = getattr(args, "dropout", 0.3)
+    base_architecture(args)
 
 @register_model_architecture("transformer", "transformer_vaswani_wmt_en_fr_big")
 def transformer_vaswani_wmt_en_fr_big(args):

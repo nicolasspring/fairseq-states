@@ -272,6 +272,10 @@ class FairseqEncoderDecoderModel(BaseFairseqModel):
         """Maximum length supported by the decoder."""
         return self.decoder.max_positions()
 
+    def change_encoder_states_dir(self, encoder_states_dir):
+        """Sets the output directory for saving encoder model states."""
+        self.encoder.change_encoder_states_dir(encoder_states_dir)
+
 
 class FairseqModel(FairseqEncoderDecoderModel):
     def __init__(self, *args, **kwargs):
