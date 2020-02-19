@@ -77,7 +77,7 @@ class SequenceGenerator(object):
 
 
     @torch.no_grad()
-    def generate(self, models, sample, **kwargs):
+    def generate(self, models, sample, states=False, **kwargs):
         """Generate a batch of translations.
 
         Args:
@@ -89,7 +89,7 @@ class SequenceGenerator(object):
                 (default: self.eos)
         """
         model = EnsembleModel(models)
-        return self._generate(model, sample, **kwargs)
+        return self._generate(model, sample, states=states, **kwargs)
 
     @torch.no_grad()
     def _generate(
@@ -98,6 +98,7 @@ class SequenceGenerator(object):
         sample,
         prefix_tokens=None,
         bos_token=None,
+        states=False,
         **kwargs
     ):
         if not self.retain_dropout:
@@ -130,6 +131,8 @@ class SequenceGenerator(object):
 
         # compute the encoder output for each beam
         encoder_outs = model.forward_encoder(encoder_input)
+        if states:
+            return None
         new_order = torch.arange(bsz).view(-1, 1).repeat(1, beam_size).view(-1)
         new_order = new_order.to(src_tokens.device).long()
         encoder_outs = model.reorder_encoder_out(encoder_outs, new_order)

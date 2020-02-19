@@ -121,7 +121,7 @@ def _main(args, output_file):
             if args.prefix_size > 0:
                 prefix_tokens = sample['target'][:, :args.prefix_size]
 
-            _ = task.inference_step(generator, models, sample, prefix_tokens)
+            _ = task.inference_step(generator, models, sample, prefix_tokens, states=True)
 
     # reading the tensor files to a list of tensors
     logger.info('loading encoder states from {}'.format(args.states_dir))
