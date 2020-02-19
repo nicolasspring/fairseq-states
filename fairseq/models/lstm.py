@@ -261,6 +261,10 @@ class LSTMEncoder(FairseqEncoder):
 
         encoder_padding_mask = src_tokens.eq(self.padding_idx).t()
 
+        # saving the output to a file
+        if self._encoder_states_dir:
+            self._save_encoder_state(x, "batch-%s.pt")
+
         return {
             'encoder_out': (x, final_hiddens, final_cells),
             'encoder_padding_mask': encoder_padding_mask if encoder_padding_mask.any() else None

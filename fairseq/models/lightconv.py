@@ -271,6 +271,10 @@ class LightConvEncoder(FairseqEncoder):
         if self.normalize:
             x = self.layer_norm(x)
 
+        # saving the output to a file
+        if self._encoder_states_dir:
+            self._save_encoder_state(x, "batch-%s.pt")
+
         return {
             'encoder_out': x,  # T x B x C
             'encoder_padding_mask': encoder_padding_mask,  # B x T

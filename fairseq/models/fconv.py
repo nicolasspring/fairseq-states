@@ -271,6 +271,10 @@ class FConvEncoder(FairseqEncoder):
         # add output to input embedding for attention
         y = (x + input_embedding) * math.sqrt(0.5)
 
+        # transposing the output to T x B x C and saving to a file
+        if self._encoder_states_dir:
+            self._save_encoder_state(x.transpose(1, 0), "batch-%s.pt")
+
         return {
             'encoder_out': (x, y),
             'encoder_padding_mask': encoder_padding_mask,  # B x T
