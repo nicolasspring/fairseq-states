@@ -157,6 +157,7 @@ class BaseFairseqModel(nn.Module):
         model_name_or_path,
         checkpoint_file="model.pt",
         data_name_or_path=".",
+        encoder_states_dir=None,
         **kwargs,
     ):
         """
@@ -187,6 +188,7 @@ class BaseFairseqModel(nn.Module):
             checkpoint_file,
             data_name_or_path,
             archive_map=cls.hub_models(),
+            encoder_states_dir=encoder_states_dir,
             **kwargs,
         )
         logger.info(x["args"])

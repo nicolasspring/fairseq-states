@@ -40,7 +40,7 @@ def get_generation_parser(interactive=False, default_task="translation"):
 
 def get_states_parser():
     parser = get_parser("Generation", "translation")
-    add_dataset_args(parser, gen=True)
+    add_dataset_args(parser)
     add_generation_args(parser)
     add_states_args(parser)
     return parser
