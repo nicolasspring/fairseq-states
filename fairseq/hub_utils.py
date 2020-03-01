@@ -25,6 +25,7 @@ def from_pretrained(
     checkpoint_file='model.pt',
     data_name_or_path='.',
     archive_map=None,
+    encoder_states_dir=None,
     **kwargs
 ):
     from fairseq import checkpoint_utils, file_utils
@@ -72,6 +73,10 @@ def from_pretrained(
         [os.path.join(model_path, cpt) for cpt in checkpoint_file.split(os.pathsep)],
         arg_overrides=kwargs,
     )
+
+    if encoder_states_dir:
+        for model in models:
+            model.change_encoder_states_dir(encoder_states_dir)
 
     return {
         'args': args,
@@ -122,15 +127,25 @@ class GeneratorHubInterface(nn.Module):
     def device(self):
         return self._float_tensor.device
 
-    def translate(self, sentences: List[str], beam: int = 5, verbose: bool = False, **kwargs) -> List[str]:
-        return self.sample(sentences, beam, verbose, **kwargs)
+    def translate(self, sentences: List[str],
+                        beam: int = 5,
+                        verbose: bool = False,
+                        states: bool = False,
+                        **kwargs
+    ) -> List[str]:
+        return self.sample(sentences, beam, verbose, states, **kwargs)
 
-    def sample(self, sentences: List[str], beam: int = 1, verbose: bool = False, **kwargs) -> List[str]:
+    def sample(self, sentences: List[str],
+                     beam: int = 1,
+                     verbose: bool = False,
+                     states: bool = False,
+                     **kwargs
+    ) -> List[str]:
         if isinstance(sentences, str):
             return self.sample([sentences], beam=beam, verbose=verbose, **kwargs)[0]
         tokenized_sentences = [self.encode(sentence) for sentence in sentences]
-        batched_hypos = self.generate(tokenized_sentences, beam, verbose, **kwargs)
-        return [self.decode(hypos[0]['tokens']) for hypos in batched_hypos]
+        batched_hypos = self.generate(tokenized_sentences, beam, verbose, states=states, **kwargs)
+        return [self.decode(hypos[0]['tokens']) for hypos in batched_hypos] if not states else None
 
     def score(self, sentences: List[str], **kwargs):
         if isinstance(sentences, str):
@@ -145,6 +160,7 @@ class GeneratorHubInterface(nn.Module):
         beam: int = 5,
         verbose: bool = False,
         skip_invalid_size_inputs=False,
+        states=False,
         **kwargs
     ) -> List[List[Dict[str, torch.Tensor]]]:
         if torch.is_tensor(tokenized_sentences) and tokenized_sentences.dim() == 1:
@@ -162,14 +178,15 @@ class GeneratorHubInterface(nn.Module):
         results = []
         for batch in self._build_batches(tokenized_sentences, skip_invalid_size_inputs):
             batch = utils.apply_to_sample(lambda t: t.to(self.device), batch)
-            translations = self.task.inference_step(generator, self.models, batch)
-            for id, hypos in zip(batch["id"].tolist(), translations):
-                results.append((id, hypos))
+            translations = self.task.inference_step(generator, self.models, batch, states=states)
+            if not states:
+                for id, hypos in zip(batch["id"].tolist(), translations):
+                    results.append((id, hypos))
 
         # sort output to match input order
-        outputs = [hypos for _, hypos in sorted(results, key=lambda x: x[0])]
+        outputs = [hypos for _, hypos in sorted(results, key=lambda x: x[0])] if not states else None
 
-        if verbose:
+        if verbose and not states:
 
             def getarg(name, default):
                 return getattr(gen_args, name, getattr(self.args, name, default))

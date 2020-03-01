@@ -176,6 +176,7 @@ class BaseFairseqModel(nn.Module):
         model_name_or_path,
         checkpoint_file="model.pt",
         data_name_or_path=".",
+        encoder_states_dir=None,
         **kwargs,
     ):
         """
@@ -206,6 +207,7 @@ class BaseFairseqModel(nn.Module):
             checkpoint_file,
             data_name_or_path,
             archive_map=cls.hub_models(),
+            encoder_states_dir=encoder_states_dir,
             **kwargs,
         )
         logger.info(x["args"])
@@ -290,6 +292,10 @@ class FairseqEncoderDecoderModel(BaseFairseqModel):
     def max_decoder_positions(self):
         """Maximum length supported by the decoder."""
         return self.decoder.max_positions()
+
+    def change_encoder_states_dir(self, encoder_states_dir):
+        """Sets the output directory for saving encoder model states."""
+        self.encoder.change_encoder_states_dir(encoder_states_dir)
 
 
 class FairseqModel(FairseqEncoderDecoderModel):

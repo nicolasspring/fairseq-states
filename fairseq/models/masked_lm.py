@@ -241,6 +241,10 @@ class MaskedLMEncoder(FairseqEncoder):
         if self.sentence_projection_layer:
             sentence_logits = self.sentence_projection_layer(pooled_output)
 
+        # transposing the output to T x B x C and saving to a file
+        if self._encoder_states_dir:
+            self._save_encoder_state(x.transpose(1, 0), "batch-%s.pt")
+
         return x, {
             'inner_states': inner_states,
             'pooled_output': pooled_output,

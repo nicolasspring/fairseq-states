@@ -3,9 +3,11 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
 import torch.nn as nn
 from typing import List, NamedTuple, Optional
-from torch import Tensor
+from torch import Tensor, save
+from fairseq.modules import exp_path_search
 
 EncoderOut = NamedTuple(
     "EncoderOut",
@@ -24,6 +26,7 @@ class FairseqEncoder(nn.Module):
     def __init__(self, dictionary):
         super().__init__()
         self.dictionary = dictionary
+        self._encoder_states_dir = None
 
     def forward(self, src_tokens, src_lengths=None, **kwargs):
         """
@@ -55,3 +58,13 @@ class FairseqEncoder(nn.Module):
     def upgrade_state_dict(self, state_dict):
         """Upgrade a (possibly old) state dict for new versions of fairseq."""
         return state_dict
+
+    def change_encoder_states_dir(self, encoder_states_dir):
+        """Sets the output directory for saving encoder model states."""
+        self._encoder_states_dir = encoder_states_dir
+
+    def _save_encoder_state(self, state, pattern):
+        """Saves the encoder state to a file with a specified *pattern*."""
+        file_pattern = os.path.join(self._encoder_states_dir, pattern)
+        outfile = exp_path_search(file_pattern)
+        save(state, outfile)

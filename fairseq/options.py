@@ -38,6 +38,14 @@ def get_generation_parser(interactive=False, default_task="translation"):
     return parser
 
 
+def get_states_parser():
+    parser = get_parser("Generation", "translation")
+    add_dataset_args(parser)
+    add_generation_args(parser)
+    add_states_args(parser)
+    return parser
+
+
 def get_interactive_generation_parser(default_task="translation"):
     return get_generation_parser(interactive=True, default_task=default_task)
 
@@ -576,6 +584,14 @@ def add_interactive_args(parser):
                        help='read this many sentences into a buffer before processing them')
     group.add_argument('--input', default='-', type=str, metavar='FILE',
                        help='file to read from; use - for stdin')
+    # fmt: on
+
+
+def add_states_args(parser):
+    group = parser.add_argument_group("States")
+    # fmt: off
+    group.add_argument('--states-dir', required=True, type=str, metavar='DIR',
+                       help='save encoder states to this directory')
     # fmt: on
 
 

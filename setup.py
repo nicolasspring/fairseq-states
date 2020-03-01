@@ -153,6 +153,7 @@ setup(
             'fairseq-interactive = fairseq_cli.interactive:cli_main',
             'fairseq-preprocess = fairseq_cli.preprocess:cli_main',
             'fairseq-score = fairseq_cli.score:cli_main',
+            'fairseq-states = fairseq_cli.states:cli_main',
             'fairseq-train = fairseq_cli.train:cli_main',
             'fairseq-validate = fairseq_cli.validate:cli_main',
         ],

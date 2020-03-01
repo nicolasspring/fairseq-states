@@ -18,6 +18,7 @@ from .learned_positional_embedding import LearnedPositionalEmbedding
 from .lightweight_convolution import LightweightConv, LightweightConv1dTBC
 from .linearized_convolution import LinearizedConvolution
 from .multihead_attention import MultiheadAttention
+from .path_search import exp_path_search
 from .positional_embedding import PositionalEmbedding
 from .scalar_bias import ScalarBias
 from .sinusoidal_positional_embedding import SinusoidalPositionalEmbedding
@@ -37,6 +38,7 @@ __all__ = [
     'DynamicConv1dTBC',
     'DynamicConv',
     'DynamicCRF',
+    'exp_path_search',
     'gelu',
     'gelu_accurate',
     'GradMultiply',
