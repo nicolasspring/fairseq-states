@@ -143,7 +143,7 @@ class GeneratorHubInterface(nn.Module):
     ) -> List[str]:
         if isinstance(sentences, str):
             return self.sample([sentences], beam=beam, verbose=verbose, **kwargs)[0]
-        tokenized_sentences = [self.encode(sentence) for sentence in sentences]
+        tokenized_sentences = [self.encode(sentence, states) for sentence in sentences]
         batched_hypos = self.generate(tokenized_sentences, beam, verbose, states=states, **kwargs)
         return [self.decode(hypos[0]['tokens']) for hypos in batched_hypos] if not states else None
 
@@ -206,9 +206,10 @@ class GeneratorHubInterface(nn.Module):
                         ))
         return outputs
 
-    def encode(self, sentence: str) -> torch.LongTensor:
-        sentence = self.tokenize(sentence)
-        sentence = self.apply_bpe(sentence)
+    def encode(self, sentence: str, states: bool = False) -> torch.LongTensor:
+        if not states:
+            sentence = self.tokenize(sentence)
+            sentence = self.apply_bpe(sentence)
         return self.binarize(sentence)
 
     def decode(self, tokens: torch.LongTensor) -> str:
